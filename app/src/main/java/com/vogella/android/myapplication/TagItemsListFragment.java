@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -14,6 +15,7 @@ import com.vogella.android.myapplication.adapters.MenuItemsListAdapter;
 import com.vogella.android.myapplication.models.TagItem;
 import com.vogella.android.myapplication.presenters.TagItemListContract;
 import com.vogella.android.myapplication.presenters.TagItemListPresenter;
+import com.vogella.android.myapplication.utils.OnItemClickListener;
 
 import java.util.ArrayList;
 
@@ -49,7 +51,12 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     private void initAdapter() {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        menuItemsListAdapter = new MenuItemsListAdapter(tagItems, getContext());
+        menuItemsListAdapter = new MenuItemsListAdapter(tagItems, getContext(), new OnItemClickListener() {
+            @Override
+            public void onItemClick(TagItem item) {
+               presenter.getItems(item.getTagName());
+            }
+        });
         recyclerView.setAdapter(menuItemsListAdapter);
         presenter.getTagsList(pageNumber);
     }

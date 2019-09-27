@@ -5,7 +5,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.vogella.android.myapplication.R;
 import com.vogella.android.myapplication.models.TagItem;
+import com.vogella.android.myapplication.utils.OnItemClickListener;
 
 import java.util.ArrayList;
 
@@ -25,10 +25,12 @@ public class MenuItemsListAdapter extends RecyclerView.Adapter<MenuItemsListAdap
 
     private ArrayList<TagItem> tagItems;
     private Context mContext;
+    private final OnItemClickListener listener;
 
-    public MenuItemsListAdapter(ArrayList<TagItem> tagItems, Context mContext) {
+    public MenuItemsListAdapter(ArrayList<TagItem> tagItems, Context mContext, OnItemClickListener listener) {
         this.tagItems = tagItems;
         this.mContext = mContext;
+        this.listener = listener;
     }
 
     @NonNull
@@ -42,6 +44,7 @@ public class MenuItemsListAdapter extends RecyclerView.Adapter<MenuItemsListAdap
 
     @Override
     public void onBindViewHolder(@NonNull ItemViewHolder holder, int position) {
+        holder.bind(tagItems.get(position), listener);
         final TagItem tagItem = tagItems.get(position);
         holder.tagName.setText(tagItem.getTagName());
 
@@ -67,13 +70,27 @@ public class MenuItemsListAdapter extends RecyclerView.Adapter<MenuItemsListAdap
             super(itemView);
             ButterKnife.bind(this, itemView);
         }
-    }
-    public static class ProgressViewHolder extends RecyclerView.ViewHolder {
-        public ProgressBar progressBar;
 
-        public ProgressViewHolder(View v) {
-            super(v);
-            progressBar = v.findViewById(R.id.progressBar1);
+        public void bind(final TagItem item, final OnItemClickListener listener) {
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override public void onClick(View v) {
+                    listener.onItemClick(item);
+                }
+            });
         }
+    }
+
+    public static class ItemDetailsHolder extends RecyclerView.ViewHolder {
+
+        @BindView(R.id.img_menu_item)
+        ImageView imageView;
+        @BindView(R.id.txt_item_name)
+        TextView itemName;
+
+        public ItemDetailsHolder(@NonNull View itemView) {
+            super(itemView);
+            ButterKnife.bind(this,itemView);
+        }
+
     }
 }

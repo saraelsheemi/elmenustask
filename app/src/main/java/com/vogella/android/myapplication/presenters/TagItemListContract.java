@@ -10,6 +10,7 @@ public interface TagItemListContract {
 
     interface Presenter {
         void getTagsList(int pageNumber);
+        void getItems(String tagName);
     }
 
     interface TagsView {

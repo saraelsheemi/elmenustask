@@ -2,6 +2,7 @@ package com.vogella.android.myapplication.presenters;
 
 import android.util.Log;
 
+import com.vogella.android.myapplication.models.TagItemDetailsResponse;
 import com.vogella.android.myapplication.models.TagListResponse;
 import com.vogella.android.myapplication.network.ApiService;
 import com.vogella.android.myapplication.network.ServiceGenerator;
@@ -25,7 +26,6 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
 
     @Override
     public void getTagsList(int pageNumber) {
-        tagsView.showLoading(true);
         disposable.add(apiService.loadTags(pageNumber)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -38,7 +38,25 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "OnError");
-                        tagsView.showLoading(false);
+                    }
+                }));
+    }
+
+    @Override
+    public void getItems(String tagName) {
+        disposable.add(apiService.loadItems(tagName)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeWith(new DisposableSingleObserver<TagItemDetailsResponse>() {
+                    @Override
+                    public void onSuccess(TagItemDetailsResponse tagListResponse) {
+                        Log.d(TAG,"success loaded items");
+                       //expand list
+
+                    }
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.d(TAG, "OnError");
                     }
                 }));
     }
