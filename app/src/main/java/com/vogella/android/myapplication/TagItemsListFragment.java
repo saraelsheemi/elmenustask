@@ -4,20 +4,20 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.vogella.android.myapplication.adapters.MenuItemsListAdapter;
+import com.vogella.android.myapplication.adapters.ExpandableRecyclerView;
 import com.vogella.android.myapplication.models.TagItem;
 import com.vogella.android.myapplication.presenters.TagItemListContract;
 import com.vogella.android.myapplication.presenters.TagItemListPresenter;
 import com.vogella.android.myapplication.utils.OnItemClickListener;
 
 import java.util.ArrayList;
+import java.util.Observable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,7 +27,7 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     ArrayList<TagItem> tagItems = new ArrayList<>();
     @BindView(R.id.recycleview)
     RecyclerView recyclerView;
-    MenuItemsListAdapter menuItemsListAdapter;
+    ExpandableRecyclerView menuItemsListAdapter;
     LinearLayoutManager linearLayoutManager;
     TagItemListPresenter presenter = new TagItemListPresenter(this);
     private int pageNumber = 1;
@@ -51,14 +51,15 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     private void initAdapter() {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        menuItemsListAdapter = new MenuItemsListAdapter(tagItems, getContext(), new OnItemClickListener() {
+        menuItemsListAdapter = new ExpandableRecyclerView(tagItems, getContext(), new OnItemClickListener() {
             @Override
-            public void onItemClick(TagItem item) {
-               presenter.getItems(item.getTagName());
+            public void onItemClick(Object item) {
+                presenter.getItems(((TagItem) item).getTagName());
             }
         });
         recyclerView.setAdapter(menuItemsListAdapter);
         presenter.getTagsList(pageNumber);
+
     }
 
 
@@ -76,5 +77,9 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
         tagItems.clear();
         tagItems.addAll(items);
         menuItemsListAdapter.notifyDataSetChanged();
+    }
+    @Override
+    public RecyclerView getRecycler() {
+        return recyclerView;
     }
 }

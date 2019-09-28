@@ -2,6 +2,7 @@ package com.vogella.android.myapplication.models;
 import com.google.gson.annotations.SerializedName;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 public class TagItem implements Serializable {
 
@@ -9,8 +10,18 @@ public class TagItem implements Serializable {
     private String tagName;
     @SerializedName("photoURL")
     private String photoURL;
+    ArrayList<TagItemDetails> tagItemDetails= new ArrayList<>();
+
 
     public TagItem() {
+    }
+
+    public ArrayList<TagItemDetails> getTagItemDetails() {
+        return tagItemDetails;
+    }
+
+    public void setTagItemDetails(ArrayList<TagItemDetails> tagItemDetails) {
+        this.tagItemDetails = tagItemDetails;
     }
 
     public TagItem(String tagName, String photoURL) {

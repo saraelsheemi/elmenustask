@@ -2,6 +2,8 @@ package com.vogella.android.myapplication.presenters;
 
 import android.content.Context;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.vogella.android.myapplication.models.TagItem;
 
 import java.util.ArrayList;
@@ -17,5 +19,6 @@ public interface TagItemListContract {
         void showLoading(boolean showLoading);
         void updateList(ArrayList<TagItem> items);
         Context getContext();
+        RecyclerView getRecycler();
     }
 }
