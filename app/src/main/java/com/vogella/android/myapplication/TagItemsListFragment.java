@@ -4,7 +4,10 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
+import android.widget.ProgressBar;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -31,7 +34,10 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     LinearLayoutManager linearLayoutManager;
     TagItemListPresenter presenter = new TagItemListPresenter(this);
     private int pageNumber = 1;
-
+    boolean isScrolling = false;
+    int currentItems, totalItems, scrollOutItems;
+    @BindView(R.id.progressbar)
+    ProgressBar progressBar;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -58,6 +64,31 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
             }
         });
         recyclerView.setAdapter(menuItemsListAdapter);
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(@NonNull RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+                if (newState == AbsListView.OnScrollListener.SCROLL_STATE_TOUCH_SCROLL) {
+                    isScrolling = true;
+
+                }
+
+            }
+
+            @Override
+            public void onScrolled(@NonNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+                currentItems = linearLayoutManager.getChildCount();
+                totalItems = linearLayoutManager.getItemCount();
+                scrollOutItems = linearLayoutManager.findFirstVisibleItemPosition();
+
+                if (isScrolling && (currentItems + scrollOutItems == totalItems)) {
+                    isScrolling = false;
+                    pageNumber++;
+                    presenter.getTagsList(pageNumber);
+                }
+            }
+        });
         presenter.getTagsList(pageNumber);
 
     }
@@ -66,18 +97,18 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     @Override
     public void showLoading(boolean showLoading) {
         if (showLoading) {
-
+            progressBar.setVisibility(View.VISIBLE);
         } else {
-
+            progressBar.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void updateList(ArrayList<TagItem> items) {
-        tagItems.clear();
         tagItems.addAll(items);
         menuItemsListAdapter.notifyDataSetChanged();
     }
+
     @Override
     public RecyclerView getRecycler() {
         return recyclerView;

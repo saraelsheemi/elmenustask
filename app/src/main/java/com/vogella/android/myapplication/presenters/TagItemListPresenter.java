@@ -30,6 +30,7 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
 
     @Override
     public void getTagsList(int pageNumber) {
+        tagsView.showLoading(true);
         disposable.add(apiService.loadTags(pageNumber)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
@@ -37,16 +38,14 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                     @Override
                     public void onSuccess(TagListResponse tagListResponse) {
                         tagItems = tagListResponse.getTagItems();
-//
-//                                ArrayList<TagItemDetails> arrr = new ArrayList<TagItemDetails>();
-//                                        arrr.add(new TagItemDetails(1,"sara",null,"ee"));
-//                        tagListResponse.getTagItems().get(0).setTagItemDetails(arrr) ;
                         tagsView.updateList(tagListResponse.getTagItems());
+                        tagsView.showLoading(false);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "OnError");
+                        tagsView.showLoading(false);
                     }
                 }));
     }
