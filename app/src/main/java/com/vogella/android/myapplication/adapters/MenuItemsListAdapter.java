@@ -14,7 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.vogella.android.myapplication.R;
 import com.vogella.android.myapplication.models.TagItem;
-import com.vogella.android.myapplication.utils.OnItemClickListener;
+import com.vogella.android.myapplication.utils.OnParentClickListener;
 
 import java.util.ArrayList;
 
@@ -25,9 +25,9 @@ public class MenuItemsListAdapter extends RecyclerView.Adapter<MenuItemsListAdap
 
     private ArrayList<TagItem> tagItems;
     private Context mContext;
-    private final OnItemClickListener listener;
+    private final OnParentClickListener listener;
 
-    public MenuItemsListAdapter(ArrayList<TagItem> tagItems, Context mContext, OnItemClickListener listener) {
+    public MenuItemsListAdapter(ArrayList<TagItem> tagItems, Context mContext, OnParentClickListener listener) {
         this.tagItems = tagItems;
         this.mContext = mContext;
         this.listener = listener;
@@ -71,7 +71,7 @@ public class MenuItemsListAdapter extends RecyclerView.Adapter<MenuItemsListAdap
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final TagItem item, final OnItemClickListener listener) {
+        public void bind(final TagItem item, final OnParentClickListener listener) {
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override public void onClick(View v) {
                     listener.onItemClick(item);

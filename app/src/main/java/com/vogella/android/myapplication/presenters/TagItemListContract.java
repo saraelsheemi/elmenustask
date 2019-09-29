@@ -18,6 +18,7 @@ public interface TagItemListContract {
     interface TagsView {
         void showLoading(boolean showLoading);
         void updateList(ArrayList<TagItem> items);
+        void changeListItem(int index, TagItem item);
         Context getContext();
         RecyclerView getRecycler();
     }

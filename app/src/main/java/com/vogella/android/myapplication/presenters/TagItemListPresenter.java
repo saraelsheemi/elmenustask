@@ -65,7 +65,7 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                         int tagIndex = findTagNameIndex(tagName);
                         if (tagIndex != -1) {
                             tagItems.get(tagIndex).setTagItemDetails(tagListResponse.getTagItemDetails());
-                            tagsView.updateList(tagItems);
+                            tagsView.changeListItem(tagIndex,tagItems.get(tagIndex));
                         } else {
                             Log.d(TAG, "onSuccess: tag name not found");
                         }

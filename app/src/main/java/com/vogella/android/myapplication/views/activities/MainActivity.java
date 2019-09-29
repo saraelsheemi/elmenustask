@@ -2,8 +2,10 @@ package com.vogella.android.myapplication.views.activities;
 
 import android.os.Bundle;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
@@ -19,7 +21,7 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitchLis
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        onFragmentSwitch(new TagItemsListFragment());
+        onFragmentSwitch(TagItemsListFragment.newInstance());
 
     }
 
@@ -27,16 +29,15 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitchLis
     public void onFragmentSwitch(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        ((ViewGroup) findViewById(R.id.fragment_container)).removeAllViews();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
     }
 
-    public void addNewTransition(Fragment fragment) {
+    public void addNewTransition(Fragment fragment, ImageView imageView) {
         FragmentManager fragmentManager = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction()
+                .addSharedElement(imageView, ViewCompat.getTransitionName(imageView))
                 .addToBackStack(null);
-        ((ViewGroup) findViewById(R.id.fragment_container)).removeAllViews();
         fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
 

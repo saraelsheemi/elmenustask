@@ -8,13 +8,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.view.ViewCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.vogella.android.myapplication.R;
 import com.vogella.android.myapplication.models.TagItemDetails;
-import com.vogella.android.myapplication.utils.OnItemClickListener;
+import com.vogella.android.myapplication.utils.OnChildClickListener;
 
 import java.util.ArrayList;
 
@@ -25,9 +26,9 @@ public class InnerRecyclerViewAdapter extends RecyclerView.Adapter<InnerRecycler
 
     private ArrayList<TagItemDetails> itemDetails;
     private Context mContext;
-    private final OnItemClickListener listener;
+    private final OnChildClickListener listener;
 
-    public InnerRecyclerViewAdapter(ArrayList<TagItemDetails> itemDetails, Context mContext, OnItemClickListener listener) {
+    public InnerRecyclerViewAdapter(ArrayList<TagItemDetails> itemDetails, Context mContext, OnChildClickListener listener) {
         this.itemDetails = itemDetails;
         this.mContext = mContext;
         this.listener = listener;
@@ -43,10 +44,16 @@ public class InnerRecyclerViewAdapter extends RecyclerView.Adapter<InnerRecycler
     }
 
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final TagItemDetails item = itemDetails.get(position);
-        holder.bind(item, listener);
         holder.name.setText(item.getName());
+        ViewCompat.setTransitionName(holder.itemImage, item.getName());
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                listener.onItemClick(holder.getAdapterPosition(), item, holder.itemImage);
+            }
+        });
         Glide.with(mContext)
                 .load(item.getPhotoUrl())
                 .apply(new RequestOptions().dontAnimate())
@@ -79,13 +86,5 @@ public class InnerRecyclerViewAdapter extends RecyclerView.Adapter<InnerRecycler
             ButterKnife.bind(this, itemView);
         }
 
-        public void bind(final TagItemDetails item, final OnItemClickListener listener) {
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    listener.onItemClick(item);
-                }
-            });
-        }
     }
 }

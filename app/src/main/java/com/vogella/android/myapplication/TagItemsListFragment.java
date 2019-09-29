@@ -10,6 +10,7 @@ import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.view.ViewCompat;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -19,10 +20,10 @@ import com.vogella.android.myapplication.models.TagItem;
 import com.vogella.android.myapplication.models.TagItemDetails;
 import com.vogella.android.myapplication.presenters.TagItemListContract;
 import com.vogella.android.myapplication.presenters.TagItemListPresenter;
-import com.vogella.android.myapplication.utils.OnItemClickListener;
+import com.vogella.android.myapplication.utils.OnChildClickListener;
+import com.vogella.android.myapplication.utils.OnParentClickListener;
 import com.vogella.android.myapplication.views.activities.MainActivity;
 import com.vogella.android.myapplication.views.fragments.ItemDetailsFragment;
-
 
 import java.util.ArrayList;
 
@@ -42,9 +43,15 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     private int currentItems, totalItems, scrollOutItems;
     @BindView(R.id.progressbar)
     ProgressBar progressBar;
-    private final String PARENT_LISTENER = "Parent";
-    private final String CHILD_LISTENER = "CHILD";
     View v;
+
+    public TagItemsListFragment() {
+
+    }
+
+    public static TagItemsListFragment newInstance() {
+        return new TagItemsListFragment();
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -65,7 +72,7 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
         menuItemsListAdapter = new ExpandableRecyclerView(tagItems, getContext(),
-                getListener(PARENT_LISTENER), getListener(CHILD_LISTENER));
+                getParentListener(), getChildListener());
 
         recyclerView.setAdapter(menuItemsListAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -114,35 +121,39 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     }
 
     @Override
+    public void changeListItem(int index, TagItem item) {
+        tagItems.remove(index);
+        tagItems.add(index,item);
+        menuItemsListAdapter.notifyItemChanged(index);
+    }
+    @Override
     public RecyclerView getRecycler() {
         return recyclerView;
     }
 
-    public OnItemClickListener getListener(String type) {
-        switch (type) {
-            case PARENT_LISTENER:
-                return new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(Object item) {
-                        presenter.getItems(((TagItem) item).getTagName());
-                    }
-                };
-            case CHILD_LISTENER:
-                return new OnItemClickListener() {
-                    @Override
-                    public void onItemClick(Object item) {
-                        ItemDetailsFragment itemDetailsFragment = new ItemDetailsFragment();
-                        Bundle bundle = new Bundle();
-                        bundle.putSerializable("details", ((TagItemDetails) item));
-                        itemDetailsFragment.setArguments(bundle);
-                        MainActivity mainActivity = (MainActivity) getActivity();
-                        mainActivity.addNewTransition(itemDetailsFragment);
+    public OnChildClickListener getChildListener() {
+        return new OnChildClickListener() {
+            @Override
+            public void onItemClick(int position, Object item, ImageView imageView) {
+                ItemDetailsFragment itemDetailsFragment = new ItemDetailsFragment();
+                Bundle bundle = new Bundle();
+                bundle.putSerializable("details", ((TagItemDetails) item));
+                bundle.putString("transition_name",ViewCompat.getTransitionName(imageView));
+                itemDetailsFragment.setArguments(bundle);
+                MainActivity mainActivity = (MainActivity) getActivity();
+                mainActivity.addNewTransition(itemDetailsFragment,imageView);
+            }
+        };
+    }
 
-                    }
-                };
-            default:
-                return null;
-        }
+    public OnParentClickListener getParentListener() {
+        return new OnParentClickListener() {
+            @Override
+            public void onItemClick(Object item) {
+                presenter.getItems(((TagItem) item).getTagName());
+            }
+        };
+
 
     }
 }
