@@ -1,6 +1,7 @@
 package com.vogella.android.myapplication.adapters;
 
 import android.content.Context;
+import android.nfc.Tag;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,7 +9,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -29,13 +29,16 @@ import butterknife.ButterKnife;
 public class ExpandableRecyclerView extends RecyclerView.Adapter<ExpandableRecyclerView.ViewHolder> {
     private ArrayList<TagItem> tagItems;
     private Context mContext;
-    private final OnItemClickListener listener;
+    private final OnItemClickListener parentListener;
+    private final OnItemClickListener childListner;
     private static final String TAG = "ExpandableRecyclerView";
 
-    public ExpandableRecyclerView(ArrayList<TagItem> tagItems, Context mContext, OnItemClickListener listener) {
+    public ExpandableRecyclerView(ArrayList<TagItem> tagItems, Context mContext, OnItemClickListener listener,
+                                  OnItemClickListener childListner) {
         this.tagItems = tagItems;
         this.mContext = mContext;
-        this.listener = listener;
+        this.parentListener = listener;
+        this.childListner = childListner;
     }
 
     @NonNull
@@ -51,15 +54,10 @@ public class ExpandableRecyclerView extends RecyclerView.Adapter<ExpandableRecyc
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final TagItem tagItem = tagItems.get(position);
-        holder.bind(tagItem, listener);
+        holder.bind(tagItem, parentListener);
         holder.tagName.setText(tagItem.getTagName());
         InnerRecyclerViewAdapter itemInnerRecyclerView = new InnerRecyclerViewAdapter(tagItems.get(position).getTagItemDetails(),
-                mContext, new OnItemClickListener() {
-            @Override
-            public void onItemClick(Object item) {
-                Toast.makeText(mContext,"Hello",Toast.LENGTH_SHORT).show();
-            }
-        });
+                mContext, childListner);
         holder.recyclerView.setLayoutManager(new LinearLayoutManager(mContext));
         holder.recyclerView.setAdapter(itemInnerRecyclerView);
         Log.d(TAG, "arraysize" + itemInnerRecyclerView.getItemCount() + "");
@@ -79,6 +77,11 @@ public class ExpandableRecyclerView extends RecyclerView.Adapter<ExpandableRecyc
     @Override
     public int getItemViewType(int position) {
         return super.getItemViewType(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
     }
 
     public class ViewHolder extends RecyclerView.ViewHolder {

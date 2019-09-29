@@ -1,16 +1,17 @@
 package com.vogella.android.myapplication.views.activities;
 
+import android.os.Bundle;
+import android.view.ViewGroup;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
-import android.os.Bundle;
-import android.view.ViewGroup;
-
 import com.vogella.android.myapplication.R;
 import com.vogella.android.myapplication.TagItemsListFragment;
 import com.vogella.android.myapplication.utils.FragmentSwitchListener;
+
 
 public class MainActivity extends AppCompatActivity implements FragmentSwitchListener {
 
@@ -25,9 +26,19 @@ public class MainActivity extends AppCompatActivity implements FragmentSwitchLis
     @Override
     public void onFragmentSwitch(Fragment fragment) {
         FragmentManager fragmentManager = getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction =fragmentManager.beginTransaction();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         ((ViewGroup) findViewById(R.id.fragment_container)).removeAllViews();
-        fragmentTransaction.add(R.id.fragment_container, fragment);
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
         fragmentTransaction.commit();
+    }
+
+    public void addNewTransition(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction()
+                .addToBackStack(null);
+        ((ViewGroup) findViewById(R.id.fragment_container)).removeAllViews();
+        fragmentTransaction.replace(R.id.fragment_container, fragment);
+        fragmentTransaction.commit();
+
     }
 }

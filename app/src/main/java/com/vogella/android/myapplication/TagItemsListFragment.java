@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
@@ -15,29 +16,35 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.vogella.android.myapplication.adapters.ExpandableRecyclerView;
 import com.vogella.android.myapplication.models.TagItem;
+import com.vogella.android.myapplication.models.TagItemDetails;
 import com.vogella.android.myapplication.presenters.TagItemListContract;
 import com.vogella.android.myapplication.presenters.TagItemListPresenter;
 import com.vogella.android.myapplication.utils.OnItemClickListener;
+import com.vogella.android.myapplication.views.activities.MainActivity;
+import com.vogella.android.myapplication.views.fragments.ItemDetailsFragment;
+
 
 import java.util.ArrayList;
-import java.util.Observable;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class TagItemsListFragment extends Fragment implements TagItemListContract.TagsView {
     private static final String TAG = "TagItemsListFragment";
-    ArrayList<TagItem> tagItems = new ArrayList<>();
+    private ArrayList<TagItem> tagItems = new ArrayList<>();
     @BindView(R.id.recycleview)
     RecyclerView recyclerView;
-    ExpandableRecyclerView menuItemsListAdapter;
-    LinearLayoutManager linearLayoutManager;
-    TagItemListPresenter presenter = new TagItemListPresenter(this);
+    private ExpandableRecyclerView menuItemsListAdapter;
+    private LinearLayoutManager linearLayoutManager;
+    private TagItemListPresenter presenter = new TagItemListPresenter(this);
     private int pageNumber = 1;
-    boolean isScrolling = false;
-    int currentItems, totalItems, scrollOutItems;
+    private boolean isScrolling = false;
+    private int currentItems, totalItems, scrollOutItems;
     @BindView(R.id.progressbar)
     ProgressBar progressBar;
+    private final String PARENT_LISTENER = "Parent";
+    private final String CHILD_LISTENER = "CHILD";
+    View v;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -48,7 +55,7 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View v = inflater.inflate(R.layout.fragment_tag_items_list, container, false);
+        v = inflater.inflate(R.layout.fragment_tag_items_list, container, false);
         ButterKnife.bind(this, v);
         initAdapter();
         return v;
@@ -57,12 +64,9 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     private void initAdapter() {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
-        menuItemsListAdapter = new ExpandableRecyclerView(tagItems, getContext(), new OnItemClickListener() {
-            @Override
-            public void onItemClick(Object item) {
-                presenter.getItems(((TagItem) item).getTagName());
-            }
-        });
+        menuItemsListAdapter = new ExpandableRecyclerView(tagItems, getContext(),
+                getListener(PARENT_LISTENER), getListener(CHILD_LISTENER));
+
         recyclerView.setAdapter(menuItemsListAdapter);
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -112,5 +116,33 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     @Override
     public RecyclerView getRecycler() {
         return recyclerView;
+    }
+
+    public OnItemClickListener getListener(String type) {
+        switch (type) {
+            case PARENT_LISTENER:
+                return new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(Object item) {
+                        presenter.getItems(((TagItem) item).getTagName());
+                    }
+                };
+            case CHILD_LISTENER:
+                return new OnItemClickListener() {
+                    @Override
+                    public void onItemClick(Object item) {
+                        ItemDetailsFragment itemDetailsFragment = new ItemDetailsFragment();
+                        Bundle bundle = new Bundle();
+                        bundle.putSerializable("details", ((TagItemDetails) item));
+                        itemDetailsFragment.setArguments(bundle);
+                        MainActivity mainActivity = (MainActivity) getActivity();
+                        mainActivity.addNewTransition(itemDetailsFragment);
+
+                    }
+                };
+            default:
+                return null;
+        }
+
     }
 }

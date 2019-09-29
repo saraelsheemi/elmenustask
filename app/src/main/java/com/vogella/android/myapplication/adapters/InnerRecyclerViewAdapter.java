@@ -58,6 +58,16 @@ public class InnerRecyclerViewAdapter extends RecyclerView.Adapter<InnerRecycler
         return itemDetails.size();
     }
 
+    @Override
+    public int getItemViewType(int position) {
+        return super.getItemViewType(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return super.getItemId(position);
+    }
+
     public class ViewHolder extends RecyclerView.ViewHolder {
         @BindView(R.id.img_detail_item)
         ImageView itemImage;

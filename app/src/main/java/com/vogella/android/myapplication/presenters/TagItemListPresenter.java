@@ -21,11 +21,13 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
     private TagItemListContract.TagsView tagsView;
     private CompositeDisposable disposable = new CompositeDisposable();
     private ApiService apiService;
-    private ArrayList<TagItem> tagItems;
+    private ArrayList<TagItem> tagItems = new ArrayList<>();
+
 
     public TagItemListPresenter(TagItemListContract.TagsView tagsView) {
         this.tagsView = tagsView;
         apiService = ServiceGenerator.getClient(tagsView.getContext()).create(ApiService.class);
+
     }
 
     @Override
@@ -37,7 +39,7 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                 .subscribeWith(new DisposableSingleObserver<TagListResponse>() {
                     @Override
                     public void onSuccess(TagListResponse tagListResponse) {
-                        tagItems = tagListResponse.getTagItems();
+                        tagItems.addAll(tagListResponse.getTagItems());
                         tagsView.updateList(tagListResponse.getTagItems());
                         tagsView.showLoading(false);
                     }
