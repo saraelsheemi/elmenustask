@@ -77,7 +77,7 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
             tagItems.addAll(cachedItems);
             tagsView.updateList(cachedItems);
             //clear cache
-            cacheManager.writeJson(new ArrayList<TagItem>(), type, CacheUtils.TAGS);
+//            cacheManager.writeJson(new ArrayList<TagItem>(), type, CacheUtils.TAGS);
         } else {
             tagsView.showRefresh(true);
         }
@@ -110,7 +110,7 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                         if (cachedItems != null) {
                             updateItemsDetails(tagName, cachedItems);
                             //clear cache
-                            cacheManager.writeJson(new ArrayList<TagItemDetails>(), type, CacheUtils.ITEMS);
+//                            cacheManager.writeJson(new ArrayList<TagItemDetails>(), type, CacheUtils.ITEMS);
                         }
 
                     }
@@ -128,7 +128,10 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
 
     private void updateItemsDetails(String tagName, ArrayList<TagItemDetails> itemDetails) {
         int tagIndex = findTagNameIndex(tagName);
-        if (tagIndex != -1) {
+        Log.d(TAG,tagItems.get(tagIndex).getTagName().substring(0,1));
+        Log.d(TAG,itemDetails.get(0).getName().substring(0,1));
+        String currentTagName = tagItems.get(tagIndex).getTagName();
+        if (tagIndex != -1 && (currentTagName.equals(itemDetails.get(0).getName().substring(0,currentTagName.length())))) {
             tagItems.get(tagIndex).setTagItemDetails(itemDetails);
             tagsView.changeListItem(tagIndex, tagItems.get(tagIndex));
         } else {
