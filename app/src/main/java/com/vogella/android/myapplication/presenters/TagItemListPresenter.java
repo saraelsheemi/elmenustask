@@ -128,8 +128,6 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
 
     private void updateItemsDetails(String tagName, ArrayList<TagItemDetails> itemDetails) {
         int tagIndex = findTagNameIndex(tagName);
-        Log.d(TAG,tagItems.get(tagIndex).getTagName().substring(0,1));
-        Log.d(TAG,itemDetails.get(0).getName().substring(0,1));
         String currentTagName = tagItems.get(tagIndex).getTagName();
         if (tagIndex != -1 && (currentTagName.equals(itemDetails.get(0).getName().substring(0,currentTagName.length())))) {
             tagItems.get(tagIndex).setTagItemDetails(itemDetails);
