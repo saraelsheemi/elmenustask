@@ -61,6 +61,8 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                     @Override
                     public void onSuccess(TagItemDetailsResponse tagListResponse) {
                         Log.d(TAG, "success loaded items");
+                        if(tagListResponse)
+                        Log.d(TAG, "success loaded items");
                         //expand list
                         int tagIndex = findTagNameIndex(tagName);
                         if (tagIndex != -1) {

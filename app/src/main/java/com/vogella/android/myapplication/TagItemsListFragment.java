@@ -71,6 +71,7 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     private void initAdapter() {
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
+
         menuItemsListAdapter = new ExpandableRecyclerView(tagItems, getContext(),
                 getParentListener(), getChildListener());
 
@@ -104,7 +105,6 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
 
     }
 
-
     @Override
     public void showLoading(boolean showLoading) {
         if (showLoading) {
@@ -123,9 +123,10 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     @Override
     public void changeListItem(int index, TagItem item) {
         tagItems.remove(index);
-        tagItems.add(index,item);
+        tagItems.add(index, item);
         menuItemsListAdapter.notifyItemChanged(index);
     }
+
     @Override
     public RecyclerView getRecycler() {
         return recyclerView;
@@ -138,10 +139,10 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
                 ItemDetailsFragment itemDetailsFragment = new ItemDetailsFragment();
                 Bundle bundle = new Bundle();
                 bundle.putSerializable("details", ((TagItemDetails) item));
-                bundle.putString("transition_name",ViewCompat.getTransitionName(imageView));
+                bundle.putString("transition_name", ViewCompat.getTransitionName(imageView));
                 itemDetailsFragment.setArguments(bundle);
                 MainActivity mainActivity = (MainActivity) getActivity();
-                mainActivity.addNewTransition(itemDetailsFragment,imageView);
+                mainActivity.addNewTransition(itemDetailsFragment, imageView);
             }
         };
     }
