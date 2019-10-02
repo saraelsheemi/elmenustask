@@ -1,4 +1,4 @@
-package com.vogella.android.myapplication;
+package com.vogella.android.myapplication.views.fragments;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.vogella.android.myapplication.R;
 import com.vogella.android.myapplication.adapters.ExpandableRecyclerView;
 import com.vogella.android.myapplication.models.TagItem;
 import com.vogella.android.myapplication.models.TagItemDetails;
@@ -23,7 +24,6 @@ import com.vogella.android.myapplication.presenters.TagItemListPresenter;
 import com.vogella.android.myapplication.utils.OnChildClickListener;
 import com.vogella.android.myapplication.utils.OnParentClickListener;
 import com.vogella.android.myapplication.views.activities.MainActivity;
-import com.vogella.android.myapplication.views.fragments.ItemDetailsFragment;
 
 import java.util.ArrayList;
 
@@ -102,7 +102,6 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
             }
         });
         presenter.getTagsList(pageNumber);
-
     }
 
     @Override
@@ -128,9 +127,15 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     }
 
     @Override
-    public RecyclerView getRecycler() {
-        return recyclerView;
+    public MainActivity getMainActivity() {
+        return (MainActivity) getActivity();
     }
+
+    @Override
+    public void setPageNumber(int value) {
+        pageNumber = value;
+    }
+
 
     public OnChildClickListener getChildListener() {
         return new OnChildClickListener() {
@@ -154,7 +159,6 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
                 presenter.getItems(((TagItem) item).getTagName());
             }
         };
-
 
     }
 }

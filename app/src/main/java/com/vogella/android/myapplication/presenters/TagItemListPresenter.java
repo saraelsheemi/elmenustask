@@ -2,12 +2,17 @@ package com.vogella.android.myapplication.presenters;
 
 import android.util.Log;
 
+import com.google.gson.reflect.TypeToken;
 import com.vogella.android.myapplication.models.TagItem;
+import com.vogella.android.myapplication.models.TagItemDetails;
 import com.vogella.android.myapplication.models.TagItemDetailsResponse;
 import com.vogella.android.myapplication.models.TagListResponse;
 import com.vogella.android.myapplication.network.ApiService;
+import com.vogella.android.myapplication.network.CacheManager;
+import com.vogella.android.myapplication.network.CacheUtils;
 import com.vogella.android.myapplication.network.ServiceGenerator;
 
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -22,7 +27,7 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
     private CompositeDisposable disposable = new CompositeDisposable();
     private ApiService apiService;
     private ArrayList<TagItem> tagItems = new ArrayList<>();
-
+    private CacheManager cacheManager;
 
     public TagItemListPresenter(TagItemListContract.TagsView tagsView) {
         this.tagsView = tagsView;
@@ -31,7 +36,8 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
     }
 
     @Override
-    public void getTagsList(int pageNumber) {
+    public void getTagsList(final int pageNumber) {
+        cacheManager = tagsView.getMainActivity().getCacheManager();
         tagsView.showLoading(true);
         disposable.add(apiService.loadTags(pageNumber)
                 .subscribeOn(Schedulers.io())
@@ -39,43 +45,69 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                 .subscribeWith(new DisposableSingleObserver<TagListResponse>() {
                     @Override
                     public void onSuccess(TagListResponse tagListResponse) {
+                        tagsView.showLoading(false);
                         tagItems.addAll(tagListResponse.getTagItems());
                         tagsView.updateList(tagListResponse.getTagItems());
-                        tagsView.showLoading(false);
+                        Type type = new TypeToken<ArrayList<TagItem>>() {
+                        }.getType();
+                        cacheManager.writeJson(tagItems, type, CacheUtils.TAGS);
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "OnError");
                         tagsView.showLoading(false);
+                        tagsView.setPageNumber(pageNumber - 1);
+                        Type type = new TypeToken<ArrayList<TagItem>>() {
+                        }.getType();
+                        ArrayList<TagItem> cachedItems = (ArrayList<TagItem>) cacheManager.readJson(type, CacheUtils.TAGS);
+
+                        if (cachedItems != null) {
+                            tagItems.clear();
+                            tagsView.updateList(tagItems);
+                            tagItems.addAll(cachedItems);
+                            tagsView.updateList(cachedItems);
+                            //clear cache
+                            cacheManager.writeJson(new ArrayList<TagItem>(), type, CacheUtils.TAGS);
+                        }
+                        else {
+                            
+                        }
+
                     }
                 }));
     }
 
     @Override
     public void getItems(final String tagName) {
+        cacheManager = tagsView.getMainActivity().getCacheManager();
         disposable.add(apiService.loadItems(tagName)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribeWith(new DisposableSingleObserver<TagItemDetailsResponse>() {
                     @Override
                     public void onSuccess(TagItemDetailsResponse tagListResponse) {
-                        Log.d(TAG, "success loaded items");
-                        if(tagListResponse)
-                        Log.d(TAG, "success loaded items");
+                        Type type = new TypeToken<ArrayList<TagItemDetails>>() {
+                        }.getType();
+                        cacheManager.writeJson(tagListResponse.getTagItemDetails(), type, CacheUtils.ITEMS);
                         //expand list
-                        int tagIndex = findTagNameIndex(tagName);
-                        if (tagIndex != -1) {
-                            tagItems.get(tagIndex).setTagItemDetails(tagListResponse.getTagItemDetails());
-                            tagsView.changeListItem(tagIndex,tagItems.get(tagIndex));
-                        } else {
-                            Log.d(TAG, "onSuccess: tag name not found");
-                        }
+                        updateItemsDetails(tagName, tagListResponse.getTagItemDetails());
+                        Log.d(TAG, "success loaded items");
+
                     }
 
                     @Override
                     public void onError(Throwable e) {
                         Log.d(TAG, "OnError");
+                        Type type = new TypeToken<ArrayList<TagItemDetails>>() {
+                        }.getType();
+                        ArrayList<TagItemDetails> cachedItems = (ArrayList<TagItemDetails>) cacheManager.readJson(type, CacheUtils.ITEMS);
+                        if (cachedItems != null) {
+                            updateItemsDetails(tagName, cachedItems);
+                            //clear cache
+                            cacheManager.writeJson(new ArrayList<TagItemDetails>(), type, CacheUtils.ITEMS);
+                        }
+
                     }
                 }));
     }
@@ -87,5 +119,15 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
 
         }
         return -1;
+    }
+
+    private void updateItemsDetails(String tagName, ArrayList<TagItemDetails> itemDetails) {
+        int tagIndex = findTagNameIndex(tagName);
+        if (tagIndex != -1) {
+            tagItems.get(tagIndex).setTagItemDetails(itemDetails);
+            tagsView.changeListItem(tagIndex, tagItems.get(tagIndex));
+        } else {
+            Log.d(TAG, "onSuccess: tag name not found");
+        }
     }
 }

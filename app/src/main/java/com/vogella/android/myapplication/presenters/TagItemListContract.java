@@ -5,6 +5,7 @@ import android.content.Context;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vogella.android.myapplication.models.TagItem;
+import com.vogella.android.myapplication.views.activities.MainActivity;
 
 import java.util.ArrayList;
 
@@ -19,7 +20,8 @@ public interface TagItemListContract {
         void showLoading(boolean showLoading);
         void updateList(ArrayList<TagItem> items);
         void changeListItem(int index, TagItem item);
+        MainActivity getMainActivity();
         Context getContext();
-        RecyclerView getRecycler();
+        void setPageNumber(int value);
     }
 }
