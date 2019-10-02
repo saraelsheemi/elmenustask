@@ -1,7 +1,6 @@
 package com.vogella.android.myapplication.adapters;
 
 import android.content.Context;
-import android.nfc.Tag;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,15 +26,15 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 
-public class ExpandableRecyclerView extends RecyclerView.Adapter<ExpandableRecyclerView.ViewHolder> {
+public class ExpandableRecyclerViewAdapter extends RecyclerView.Adapter<ExpandableRecyclerViewAdapter.ViewHolder> {
     private ArrayList<TagItem> tagItems;
     private Context mContext;
     private final OnParentClickListener parentListener;
     private final OnChildClickListener childListner;
-    private static final String TAG = "ExpandableRecyclerView";
+    private static final String TAG = "ExpandableRecyclerViewAdapter";
 
-    public ExpandableRecyclerView(ArrayList<TagItem> tagItems, Context mContext, OnParentClickListener listener,
-                                  OnChildClickListener childListner) {
+    public ExpandableRecyclerViewAdapter(ArrayList<TagItem> tagItems, Context mContext, OnParentClickListener listener,
+                                         OnChildClickListener childListner) {
         this.tagItems = tagItems;
         this.mContext = mContext;
         this.parentListener = listener;
@@ -51,7 +50,10 @@ public class ExpandableRecyclerView extends RecyclerView.Adapter<ExpandableRecyc
         return new ViewHolder(v);
     }
 
-
+    public void clear() {
+        tagItems.clear();
+        notifyItemRangeRemoved(0, getItemCount());
+    }
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, int position) {
         final TagItem tagItem = tagItems.get(position);

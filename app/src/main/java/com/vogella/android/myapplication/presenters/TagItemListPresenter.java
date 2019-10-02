@@ -1,6 +1,7 @@
 package com.vogella.android.myapplication.presenters;
 
 import android.util.Log;
+import android.view.View;
 
 import com.google.gson.reflect.TypeToken;
 import com.vogella.android.myapplication.models.TagItem;
@@ -46,6 +47,8 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                     @Override
                     public void onSuccess(TagListResponse tagListResponse) {
                         tagsView.showLoading(false);
+                        tagsView.showRefresh(false);
+
                         tagItems.addAll(tagListResponse.getTagItems());
                         tagsView.updateList(tagListResponse.getTagItems());
                         Type type = new TypeToken<ArrayList<TagItem>>() {
@@ -58,24 +61,26 @@ public class TagItemListPresenter implements TagItemListContract.Presenter {
                         Log.d(TAG, "OnError");
                         tagsView.showLoading(false);
                         tagsView.setPageNumber(pageNumber - 1);
-                        Type type = new TypeToken<ArrayList<TagItem>>() {
-                        }.getType();
-                        ArrayList<TagItem> cachedItems = (ArrayList<TagItem>) cacheManager.readJson(type, CacheUtils.TAGS);
-
-                        if (cachedItems != null) {
-                            tagItems.clear();
-                            tagsView.updateList(tagItems);
-                            tagItems.addAll(cachedItems);
-                            tagsView.updateList(cachedItems);
-                            //clear cache
-                            cacheManager.writeJson(new ArrayList<TagItem>(), type, CacheUtils.TAGS);
-                        }
-                        else {
-                            
-                        }
-
+                        handleError();
                     }
                 }));
+    }
+
+    private void handleError() {
+        Type type = new TypeToken<ArrayList<TagItem>>() {
+        }.getType();
+        ArrayList<TagItem> cachedItems = (ArrayList<TagItem>) cacheManager.readJson(type, CacheUtils.TAGS);
+
+        if (cachedItems != null && cachedItems.size() > 0) {
+            tagsView.getAdapter().clear();
+            tagItems.clear();
+            tagItems.addAll(cachedItems);
+            tagsView.updateList(cachedItems);
+            //clear cache
+            cacheManager.writeJson(new ArrayList<TagItem>(), type, CacheUtils.TAGS);
+        } else {
+            tagsView.showRefresh(true);
+        }
     }
 
     @Override

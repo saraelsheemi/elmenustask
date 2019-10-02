@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 
@@ -16,7 +17,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.vogella.android.myapplication.R;
-import com.vogella.android.myapplication.adapters.ExpandableRecyclerView;
+import com.vogella.android.myapplication.adapters.ExpandableRecyclerViewAdapter;
 import com.vogella.android.myapplication.models.TagItem;
 import com.vogella.android.myapplication.models.TagItemDetails;
 import com.vogella.android.myapplication.presenters.TagItemListContract;
@@ -35,7 +36,7 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     private ArrayList<TagItem> tagItems = new ArrayList<>();
     @BindView(R.id.recycleview)
     RecyclerView recyclerView;
-    private ExpandableRecyclerView menuItemsListAdapter;
+    private ExpandableRecyclerViewAdapter menuItemsListAdapter;
     private LinearLayoutManager linearLayoutManager;
     private TagItemListPresenter presenter = new TagItemListPresenter(this);
     private int pageNumber = 1;
@@ -44,6 +45,8 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     @BindView(R.id.progressbar)
     ProgressBar progressBar;
     View v;
+    @BindView(R.id.btn_refresh)
+    Button refreshButton;
 
     public TagItemsListFragment() {
 
@@ -72,7 +75,7 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
         linearLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(linearLayoutManager);
 
-        menuItemsListAdapter = new ExpandableRecyclerView(tagItems, getContext(),
+        menuItemsListAdapter = new ExpandableRecyclerViewAdapter(tagItems, getContext(),
                 getParentListener(), getChildListener());
 
         recyclerView.setAdapter(menuItemsListAdapter);
@@ -102,6 +105,17 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
             }
         });
         presenter.getTagsList(pageNumber);
+        refreshButton.setOnClickListener(getRefreshListener());
+    }
+
+    public View.OnClickListener getRefreshListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                pageNumber++;
+                presenter.getTagsList(pageNumber);
+            }
+        };
     }
 
     @Override
@@ -110,6 +124,15 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
             progressBar.setVisibility(View.VISIBLE);
         } else {
             progressBar.setVisibility(View.GONE);
+        }
+    }
+
+    @Override
+    public void showRefresh(boolean showRefresh) {
+        if (showRefresh) {
+            refreshButton.setVisibility(View.VISIBLE);
+        } else {
+            refreshButton.setVisibility(View.GONE);
         }
     }
 
@@ -134,6 +157,11 @@ public class TagItemsListFragment extends Fragment implements TagItemListContrac
     @Override
     public void setPageNumber(int value) {
         pageNumber = value;
+    }
+
+    @Override
+    public ExpandableRecyclerViewAdapter getAdapter() {
+        return menuItemsListAdapter;
     }
 
 
