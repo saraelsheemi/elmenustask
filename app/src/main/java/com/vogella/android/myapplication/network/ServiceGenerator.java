@@ -8,6 +8,7 @@ import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import okhttp3.CacheControl;
 import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -58,9 +59,65 @@ public class ServiceGenerator {
                 return chain.proceed(request);
             }
         });
+        httpClient.addNetworkInterceptor(provideCacheInterceptor())
+                .addInterceptor(provideOfflineCacheInterceptor());
 
         okHttpClient = httpClient.build();
     }
 
+    private static Interceptor provideCacheInterceptor() {
 
+        return new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request request = chain.request();
+                Response originalResponse = chain.proceed(request);
+                String cacheControl = originalResponse.header("Cache-Control");
+
+                if (cacheControl == null || cacheControl.contains("no-store") || cacheControl.contains("no-cache") ||
+                        cacheControl.contains("must-revalidate") || cacheControl.contains("max-stale=0")) {
+
+
+                    CacheControl cc = new CacheControl.Builder()
+                            .maxStale(1, TimeUnit.DAYS)
+                            .build();
+
+
+
+                    request = request.newBuilder()
+                            .cacheControl(cc)
+                            .build();
+
+                    return chain.proceed(request);
+
+                } else {
+                    return originalResponse;
+                }
+            }
+        };
+
+    }
+    private static Interceptor provideOfflineCacheInterceptor() {
+
+        return new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                try {
+                    return chain.proceed(chain.request());
+                } catch (Exception e) {
+
+
+                    CacheControl cacheControl = new CacheControl.Builder()
+                            .onlyIfCached()
+                            .maxStale(1, TimeUnit.DAYS)
+                            .build();
+
+                    Request offlineRequest = chain.request().newBuilder()
+                            .cacheControl(cacheControl)
+                            .build();
+                    return chain.proceed(offlineRequest);
+                }
+            }
+        };
+    }
 }
